@@ -287,14 +287,14 @@ handle_call({connect_signal, Name, IfaceName, SignalName, Path, MFA}, _From,
     end;
 
 handle_call({connect_signal, MFA}, _From,
-        #state{conn={dbus_bus_connection, Conn}, path=Path, uniquename=Name}=State) ->
-    Ret = dbus_proxy:connect_signal(Conn, Name, '_', '_', Path, MFA),
-    {reply, Ret, State};
+        #state{conn={dbus_bus_connection, _Conn}, path=Path, uniquename=Name}=State) ->
+    handle_call({connect_signal, Name, '_', '_', Path, MFA}, _From,  State);
+
+
 
 handle_call({connect_signal, IfaceName, SignalName, MFA}, _From,
-        #state{conn={dbus_bus_connection, Conn}, path=Path, uniquename=Name}=State) ->
-    Ret = dbus_proxy:connect_signal(Conn, Name, IfaceName, SignalName, Path, MFA),
-    {reply, Ret, State};
+        #state{conn={dbus_bus_connection, _Conn}, path=Path, uniquename=Name}=State) ->
+    handle_call({connect_signal, Name, IfaceName, SignalName, Path, MFA}, _From, State);
 
 handle_call({has_interface, IfaceName}, _From, #state{node=Node}=State) ->
     case dbus_introspect:find_interface(Node, IfaceName) of
