@@ -449,6 +449,7 @@ find_handlers(Signal, Acc, [ Handler | Tail ]) ->
     end.
 
 
+%% Sender, Interface, Member, PathMatch, MFA
 match_handler({signal_handler, '_', '_', '_', '_',       _}, {_, _, _, _}) -> true;
 match_handler({signal_handler, S,   '_', '_', '_',       _}, {S, _, _, _}) -> true;
 match_handler({signal_handler, '_', I,   '_', '_',       _}, {_, I, _, _}) -> true;
@@ -465,7 +466,7 @@ match_handler(_,                                             _)            -> fa
 
 match_path({P, _}, P) ->     true;
 match_path({_, false}, _) -> false;
-match_path({P, true}, NS) -> lists:prefix(filename:split(NS), filename:split(P)).
+match_path({P, true}, NS) -> lists:prefix(filename:split(P), filename:split(NS)).
 
 
 do_handle_signal(#signal_handler{mfa={Mod, Fun, Ctx}}=Handler, Acc, Sender, Iface, Signal, Path, Args) ->
