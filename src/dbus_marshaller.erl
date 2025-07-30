@@ -451,6 +451,7 @@ unmarshal_message(Data) when is_binary(Data) ->
         more ->
             more;
         {ok, #dbus_header{endian=Endian, type=MsgType}=Header, BodyBin, Rest} ->
+            ?debug("Unmarshaling message: ~p~n", [Header]),
             case dbus_message:find_field(?FIELD_SIGNATURE, Header) of
                 undefined ->
                     case BodyBin of
@@ -473,6 +474,7 @@ unmarshal_body(?TYPE_INVALID, _, _, _) ->
 unmarshal_body(_, SigBin, BodyBin, Endian) ->
     case unmarshal_signature(SigBin) of
         {ok, Sig} ->
+            ?debug("Unmarshaling body with signature: ~p~n", [Sig]),
             case unmarshal_tuple(Sig, BodyBin, Endian) of
                 more -> more;
                 {ok, {}, <<>>, _Pos} ->
@@ -730,7 +732,11 @@ unmarshal_array_signature(<<>>) ->
     more;
 
 unmarshal_array_signature(<< $a, Rest/bits >>) ->
-    unmarshal_signature(<< $a, Rest/bits >>, []);
+  case unmarshal_array_signature(Rest) of
+    more -> more;
+    {ok, Type, Rest2} ->
+        {ok, {array, Type}, Rest2}
+  end;
 
 unmarshal_array_signature(<< $(, Rest/bits >>) ->
     case unmarshal_signature(Rest, []) of
@@ -809,6 +815,7 @@ unmarshal_dict(KeyType, ValueType, Length, Data, Acc, Pos, Endian) when is_integ
 
 
 unmarshal_array(SubType, Length, Data, Pos, Endian) ->
+    ?debug("Unmarshaling array of type ~p with length ~p at position ~p~n", [SubType, Length, Pos]),
     Pad = pad(padding(SubType), Pos),
     if
         byte_size(Data) < Pad / 8 ->

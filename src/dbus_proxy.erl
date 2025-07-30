@@ -67,7 +67,8 @@
           uniquename      :: dbus_name()
          }).
 
--define(TIMEOUT, 5000).
+%%-define(TIMEOUT, 5000).
+-define(TIMEOUT, 30000).
 
 -type t() :: dbus_proxy().
 -type handler() :: mfa() | {fun(), any()} | pid().

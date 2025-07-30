@@ -119,9 +119,11 @@ handle_cast({send, Data}, #state{sock=Sock}=State) when is_binary(Data) ->
     {noreply, State};
 
 handle_cast(close, State) ->
+    ?error("Request for close ?~n", []),
     {stop, normal, State};
 
 handle_cast(stop, State) ->
+    ?error("Request for stop ?~n", []),
     {stop, normal, State};
 
 handle_cast(Request, State) ->
@@ -146,6 +148,7 @@ terminate(_Reason, #state{sock=Sock, loop=Loop}) ->
     case Sock of
 	undefined -> ignore;
 	_ ->
+      ?error("Terminate because of ~n~n", [_Reason]),
 	    exit(Loop, kill),
 	    %% Avoid do_read loop polling on closed fd
 	    timer:sleep(100),
